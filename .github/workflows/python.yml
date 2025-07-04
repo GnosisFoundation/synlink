@@ -91,7 +91,7 @@ jobs:
       - name: Check style
         run: |
           pip install .[quality]
-          black --check --line-length 119 --target-version py35 py/bintensors
+          black --check --line-length 119 --target-version py35 py/synlin
 
       - name: Run tests
         run: |
