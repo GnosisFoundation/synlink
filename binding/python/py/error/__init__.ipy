@@ -1,0 +1,4 @@
+class IpmsBaseException(Exception):
+    """Base exception for all IPMS-related errors."""
+
+    ...
