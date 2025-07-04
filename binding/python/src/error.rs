@@ -17,5 +17,5 @@ pub(crate) fn register_exception(m: &Bound<'_, PyModule>) -> PyResult<()> {
         error_m.py().get_type::<SynLinkBaseException>(),
     )?;
 
-    m.add_submodule(m)
+    m.add_submodule(&error_m)
 }
