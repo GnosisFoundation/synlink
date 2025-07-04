@@ -13,11 +13,11 @@ from sphinxawesome_theme import ThemeOptions, __version__
 sys.path.insert(0, os.path.abspath('../src'))
 
 # Project information
-project = 'IPMS'
+project = 'SL'
 author = 'Luca Vivona'
 copyright = f'{datetime.now().year}, {author}'
 
-version = get_version('ipms')
+version = get_version('synlink')
 release = version
 
 # Extensions
@@ -90,7 +90,7 @@ theme_options = ThemeOptions(
     # main_nav_links={"Docs": "/index"},
     extra_header_link_icons={
         "repository on GitHub": {
-            "link": "https://github.com/GnosisFoundation/ipms",
+            "link": "https://github.com/GnosisFoundation/synlink",
             "icon": (
                 '<svg height="26px" style="margin-top:-2px;display:inline" '
                 'viewBox="0 0 45 44" '

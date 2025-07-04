@@ -1,1 +1,1 @@
-from ._ipms_rs import __version__
+from ._synlink_rs import __version__

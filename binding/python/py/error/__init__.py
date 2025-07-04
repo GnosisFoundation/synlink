@@ -1,4 +1,4 @@
-from ipms._ipms_rs import _error
+from synlink._synlink_rs import _error
 
 __all__ = [
     "IpmsBaseException",

@@ -2,10 +2,10 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyException;
 
 pyo3::create_exception!(
-    ipms,
+    synlink,
     IpmsBaseException,
     PyException,
-    "Custom Base exception on the IPMS protocol"
+    "Custom Base exception on the SL protocol"
 );
 
 /// A Python module implemented in Rust.
