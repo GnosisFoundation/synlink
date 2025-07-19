@@ -29,7 +29,7 @@ class Key(ABC):
 
     @classmethod
     @abstractmethod
-    def from_bytes(cls) -> Self:
+    def from_bytes(cls, data : bytes) -> Self:
         """Return instance of the class from bytes."""
         ...
 
