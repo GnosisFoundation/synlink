@@ -2,7 +2,7 @@
 import os
 import pathlib
 
-from typing import Union
+from typing import Union, Optional
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import (
@@ -10,19 +10,16 @@ from cryptography.hazmat.primitives.asymmetric import (
 )
 
 import synlink.crypto.ed25519 as ed25519
-from synlink.crypto.typing import PrivateKey, KeyPair
-
-
-
-from typing import Optional
+from synlink.crypto.typing import KeyPair
 
 HOME_DIR : str = pathlib.Path.home().__str__()
 SSH_DEFAULT_DIRECTORY = os.path.join(HOME_DIR, ".ssh")
 
+__all__ = ["load_open_ssh_private_key"]
+
 def load_ssh_private_key(
-        ssh_dir: Union[str, os.PathLike] = SSH_DEFAULT_DIRECTORY, 
-        key_name: str = "id_ed25519", 
-        password : Optional[str] = None,
+        file : Union[str, os.PathLike] = SSH_DEFAULT_DIRECTORY, 
+        password : Optional[Union[str, bytes]] = None,
         ) -> KeyPair:
     """Load private key from OpenSSL custom encoding, and reconstruct
     key pair.
@@ -39,12 +36,14 @@ def load_ssh_private_key(
         ValueError: If keys are malformed or incompatible
         NotImplemented: If other then ed25519
     Example:
-        >>> keypair = load_ssh_keys(key_name="id_ed25519")
+        >>> keypair = load_ssh_private_key(key_name="~/.ssh/synlink_ed25519")
     """
-    file = os.path.join(ssh_dir, key_name)
+    if isinstance(password, str):
+        password = password.encode()
+
     with open(
         file,
-        "rb",
+        "r+b",
     ) as reader:
         buffer = serialization.load_ssh_private_key(
             reader.read(-1),
