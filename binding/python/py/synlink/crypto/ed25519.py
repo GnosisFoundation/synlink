@@ -13,15 +13,17 @@ from synlink.crypto.typing import PrivateKey as IPrivateKey
 from synlink.crypto.typing import PublicKey as IPublicKey
 from synlink.utils import _check_minimum_version
 
-# Type hint for python lower then 3.11
 if _check_minimum_version(3, 11, 0):
     from typing import Self
 else:
     from typing_extensions import Self
 
+Message = bytes
+Signiture = bytes
 
 __all__ = ["PublicKey", "PrivateKey", "KeyPair", "create_new_ed25519_key_pair",
            "create_new_ed25519_key_pair_from_seed"]
+
 
 
 class PublicKey(IPublicKey):
@@ -189,12 +191,11 @@ class PrivateKey(IPrivateKey):
         Returns the public key corresponding to this private key.
         """
         if not isinstance(self._impl, SigningKey):
-            # Defensive check, though __init__ should ensure correct type.
             raise CryptoException("Invalid private key implementation.")
         # Return a PublicKey wrapping the VerifyKey derived from this SigningKey
         return PublicKey(self._impl.verify_key)
 
-    def sign(self, data: bytes) -> bytes:
+    def sign(self, data: bytes) -> Tuple[Message, Signiture]:
         """
         Signs data with the private key and returns the raw signature.
 
@@ -208,7 +209,7 @@ class PrivateKey(IPrivateKey):
             raise CryptoException("Invalid private key implementation.")
         # Direct signing using the wrapped SigningKey
         signed_message = self._impl.sign(data)
-        return signed_message.message, signed_message.signature # Return only the raw signature bytes
+        return signed_message.message, signed_message.signature
 
     def to_bytes(self) -> bytes:
         """
@@ -244,6 +245,23 @@ class KeyPair(object):
     """
     secret : PrivateKey
     public  : PublicKey
+
+    def try_verify(self, message : bytes, signature : bytes) -> bool:
+        try:
+            return self.public.verify(data=message, signature=signature)
+        except BadSignatureError as e:
+            raise e
+
+    def verify(self, message : bytes, signature : bytes) -> bool:
+        try:
+            return self.public.verify(data=message, signature=signature)
+        except BadSignatureError:
+            return False
+
+    def sign(self, message : bytes) -> Tuple[Message, Signiture]:
+        return self.secret.sign(
+            data=message
+        )
 
     def __bytes__(self) -> bytes:
         """
