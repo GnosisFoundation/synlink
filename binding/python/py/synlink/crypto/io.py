@@ -1,4 +1,3 @@
-
 import os
 import pathlib
 
@@ -6,31 +5,31 @@ from typing import Union, Optional
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import (
-    ed25519 as ED25519, 
+    ed25519 as ED25519,
 )
 
 import synlink.crypto.ed25519 as ed25519
 from synlink.crypto.typing import KeyPair
 
-HOME_DIR : str = pathlib.Path.home().__str__()
+HOME_DIR: str = pathlib.Path.home().__str__()
 SSH_DEFAULT_DIRECTORY = os.path.join(HOME_DIR, ".ssh")
 
 __all__ = ["load_open_ssh_private_key"]
 
 def load_ssh_private_key(
-        file : Union[str, os.PathLike] = SSH_DEFAULT_DIRECTORY, 
-        password : Optional[Union[str, bytes]] = None,
-        ) -> KeyPair:
+    file: Union[str, os.PathLike] = SSH_DEFAULT_DIRECTORY,
+    password: Optional[Union[str, bytes]] = None,
+) -> KeyPair:
     """Load private key from OpenSSL custom encoding, and reconstruct
     key pair.
-    
+
     Args:
         ssh_dir: Path to SSH directory (default: ~/.ssh)
         key_name: Base name of key files (default: id_rsa)
-        
+
     Returns:
         KeyPair containing the loaded public and private keys
-        
+
     Raises:
         FileNotFoundError: If key files don't exist
         ValueError: If keys are malformed or incompatible
@@ -51,9 +50,7 @@ def load_ssh_private_key(
         )
 
         if isinstance(buffer, ED25519.Ed25519PrivateKey):
-            secret = ed25519.PrivateKey.from_bytes(
-                buffer.private_bytes_raw()    
-            )
+            secret = ed25519.PrivateKey.from_bytes(buffer.private_bytes_raw())
             public = secret.get_public_key()
             return ed25519.KeyPair(secret=secret, public=public)
         else:

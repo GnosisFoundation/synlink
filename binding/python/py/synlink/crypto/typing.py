@@ -5,7 +5,6 @@ from typing import Any, Protocol, runtime_checkable
 from synlink.crypto.kind import Kind
 from synlink.utils import _check_minimum_version
 
-
 if _check_minimum_version(3, 11):
     from typing import Self
 else:
@@ -21,36 +20,26 @@ class Key(ABC):
     @abstractmethod
     def get_kind(self) -> Kind:
         return self._kind
-
     @abstractmethod
     def to_bytes(self) -> bytes:
         """Returns the byte representation of this key."""
         ...
-
     @classmethod
     @abstractmethod
-    def from_bytes(cls, data : bytes) -> Self:
+    def from_bytes(cls, data: bytes) -> Self:
         """Return instance of the class from bytes."""
         ...
-
     def __bytes__(self) -> bytes:
         return self.to_bytes()
-    
     @abstractmethod
-    def __str__(self):...
-
+    def __str__(self): ...
     @abstractmethod
-    def __repr__(self):...
-
-    def __eq__(self, other : "Key") ->bool:
+    def __repr__(self): ...
+    def __eq__(self, other: "Key") -> bool:
         if isinstance(other, Key):
             return self.to_bytes() == other.to_bytes()
         else:
             raise NotImplemented
-    
-
-
-
 
 class PublicKey(Key):
     """Public key for signature verification"""
@@ -71,7 +60,6 @@ class PublicKey(Key):
         """
         ...
 
-
 class PrivateKey(Key):
     """Private key for signing"""
 
@@ -88,12 +76,10 @@ class PrivateKey(Key):
     def generate(cls) -> Self:
         """Generate private key."""
         ...
-
     @abstractmethod
     def sign(self, data: bytes) -> bytes:
         """sign datawith private key."""
         ...
-
     @abstractmethod
     def get_public_key(self) -> PublicKey:
         """obtain refrence of the public key."""
@@ -109,6 +95,3 @@ class KeyPair(Protocol):
 
     def __bytes__(self) -> bytes:
         return bytes(self.seceret)
-        
-    
-    
