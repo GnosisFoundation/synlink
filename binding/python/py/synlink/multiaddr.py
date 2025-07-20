@@ -1,17 +1,38 @@
 """Re-export of the multiaddr library."""
 
+from typing import Union
 from multiaddr import Multiaddr
-from multiaddr.protocols import (P_DNS, P_IP4, P_IP6, P_P2P, P_TCP, P_UDP,
-                                 Protocol)
+from multiaddr.protocols import (
+    P_DNS,
+    P_IP4,
+    P_IP6,
+    P_P2P,
+    P_TCP,
+    P_UDP,
+    Protocol,
+)
+from multiaddr.exceptions import (
+    StringParseError,
+    BinaryParseError,
+    ProtocolExistsError,
+    ProtocolNotFoundError,
+)
 
-__all__ = ["Multiaddr", "Protocol", "is_valid_address"]
+__all__ = [
+    "Multiaddr",
+    "Protocol",
+    "is_valid_address",
+    "StringParseError",
+    "BinaryParseError",
+    "ProtocolExistsError",
+    "ProtocolNotFoundError",
+]
 
 _PROTOCOL_CONFIG = {
     P_IP4: {"transports": [P_TCP, P_UDP], "overlays": [P_P2P]},
     P_IP6: {"transports": [P_TCP, P_UDP], "overlays": [P_P2P]},
     P_DNS: {"transports": [P_TCP], "overlays": [P_P2P]},
 }
-
 
 def _generate_supported_protocols():
     """Generate all valid protocol combinations."""
@@ -28,11 +49,9 @@ def _generate_supported_protocols():
 
     return protocols
 
-
 _SUPPORTED_PROTOCOLS = _generate_supported_protocols()
 
-
-def is_valid_address(addr: Multiaddr) -> bool:
+def is_valid_address(addr: Union[Multiaddr, str, bytes]) -> bool:
     """
     Check if a multiaddr uses only supported protocols.
 
@@ -46,5 +65,9 @@ def is_valid_address(addr: Multiaddr) -> bool:
     "/dns/example.com/tcp/443/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N"
     ```
     """
-    protocol_tuple = tuple(protocol.code for protocol in addr.protocols())
+    address = addr
+    if isinstance(addr, (str, bytes)):
+        address = Multiaddr(addr)
+
+    protocol_tuple = tuple(protocol.code for protocol in address.protocols())
     return protocol_tuple in _SUPPORTED_PROTOCOLS

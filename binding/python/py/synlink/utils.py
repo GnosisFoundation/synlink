@@ -3,7 +3,6 @@ from typing import Optional
 
 __all__ = ["_check_minimum_version", "_check_exact_version"]
 
-
 def _check_minimum_version(
     major: int, minor: Optional[int] = 0, micro: Optional[int] = 0
 ):
@@ -11,7 +10,6 @@ def _check_minimum_version(
     current = sys.version_info
     required = (major, minor, micro)
     return current[:3] >= required
-
 
 def _check_exact_version(
     major: int, minor: Optional[int] = 0, micro: Optional[int] = 0

@@ -9,7 +9,6 @@ else:
 
 __all__ = ["TProtocol"]
 
-
 @runtime_checkable
 class Serializable(Protocol):
     """
@@ -32,11 +31,9 @@ class Serializable(Protocol):
     def to_bytes(self) -> bytes:
         """serialize the object into bytes."""
         ...
-
     @classmethod
     def from_bytes(cls, data: bytes) -> Self:
         """deserialize the object from bytes."""
         ...
-
 
 TProtocol = NewType("TProtocol", str)
