@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -6,7 +7,7 @@ from nacl.exceptions import BadSignatureError
 from nacl.public import PrivateKey as ImplPrivateKey
 
 from nacl.signing import SigningKey, VerifyKey
-from nacl.encoding import HexEncoder
+from nacl.encoding import HexEncoder, Encoder
 from synlink.crypto.exception import (
     CryptoBaseException,
     SignatureVerificationError,
@@ -14,12 +15,7 @@ from synlink.crypto.exception import (
 from synlink.crypto.kind import Kind
 from synlink.crypto.typing import PrivateKey as IPrivateKey
 from synlink.crypto.typing import PublicKey as IPublicKey
-from synlink.utils import _check_minimum_version
-
-if _check_minimum_version(3, 11, 0):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from synlink.crypto.typing import KeyPair as IKeyPair
 
 Message = bytes
 Signiture = bytes
@@ -31,6 +27,7 @@ __all__ = [
     "create_new_ed25519_key_pair",
     "create_new_ed25519_key_pair_from_seed",
 ]
+
 
 class PublicKey(IPublicKey):
     """
@@ -45,26 +42,29 @@ class PublicKey(IPublicKey):
         Args:
             impl: An instance of nacl.signing.VerifyKey.
         """
-        super().__init__()
         self._impl: VerifyKey = impl
         self._kind = Kind.ED25519
+
     def get_kind(self) -> Kind:
         """
         Returns the kind of this cryptographic key.
         """
         return self._kind
+
     def to_bytes(self) -> bytes:
         """
         Converts the public key to its raw byte representation.
         """
         return bytes(self._impl)
+
     def __bytes__(self) -> bytes:
         """
         Allows the PublicKey object to be converted to bytes using bytes().
         """
         return self.to_bytes()
+
     @classmethod
-    def from_bytes(cls, data: bytes) -> Self:
+    def from_bytes(cls, data: bytes) -> "PublicKey":
         """
         Creates a PublicKey object from its raw byte representation.
 
@@ -75,6 +75,7 @@ class PublicKey(IPublicKey):
             A new PublicKey instance.
         """
         return cls(VerifyKey(data))
+
     def try_verify(self, data: bytes, signature: bytes) -> bool:
         """
         Attempts to verify the signature against the signed message.
@@ -97,6 +98,7 @@ class PublicKey(IPublicKey):
             raise SignatureVerificationError(f"{e}") from e
         except Exception as e:
             raise CryptoBaseException(f"{e}") from e
+
     def verify(self, data: bytes, signature: bytes) -> bool:
         """
         Verifies the signature against the signed message.
@@ -114,25 +116,30 @@ class PublicKey(IPublicKey):
             return True
         except BadSignatureError:
             return False
-        except Exception as e:
+        except Exception:
             # Catch other potential exceptions during verification
             # print(f"An unexpected error occurred during verification: {e}") # For debugging
             return False
+
     def __str__(self) -> str:
         """
         Returns a human-readable string representation of the public key.
         """
-        output = self._impl.encode(encoder=HexEncoder()).decode("utf-8")
+        encoder: Encoder = HexEncoder
+        output = self._impl.encode(encoder).decode("utf-8")
         return f"PublicKey({output})"
+
     def __repr__(self) -> str:
         """
         Returns a detailed string representation for debugging.
         """
-        output = self._impl.encode(encoder=HexEncoder()).decode("utf-8")
+        encoder: Encoder = HexEncoder
+        output = self._impl.encode(encoder).decode("utf-8")
         # Show a truncated hex representation for brevity in repr
         return (
             f"<synlink.crypto.ed25519.PublicKey {output[:8]}...{output[-8:]}>"
         )
+
 
 class PrivateKey(IPrivateKey):
     """
@@ -147,16 +154,17 @@ class PrivateKey(IPrivateKey):
         Args:
             impl: An instance of nacl.signing.SigningKey.
         """
-        super().__init__()
         self._kind = Kind.ED25519
         self._impl: SigningKey = impl
+
     def get_kind(self) -> Kind:
         """
         Returns the kind of this cryptographic key.
         """
         return self._kind
+
     @classmethod
-    def generate(cls) -> Self:
+    def generate(cls) -> "PrivateKey":
         """
         Generates a new random ED25519 private key.
 
@@ -165,8 +173,9 @@ class PrivateKey(IPrivateKey):
         """
         impl = SigningKey.generate()
         return cls(impl)
+
     @classmethod
-    def from_seed(cls, seed: Optional[bytes] = None) -> Self:
+    def from_seed(cls, seed: Optional[bytes] = None) -> "PrivateKey":
         """
         Generates an ED25519 private key from a 32-byte seed.
 
@@ -189,8 +198,9 @@ class PrivateKey(IPrivateKey):
         ), "PrivateKey seed must be a 32 bytes long binary sequence"
         impl = ImplPrivateKey.from_seed(seed)
         return cls(SigningKey(bytes(impl)))
+
     @classmethod
-    def from_bytes(cls, data: bytes) -> Self:
+    def from_bytes(cls, data: bytes) -> "PrivateKey":
         """
         Creates an ED25519 private key from its raw byte representation.
 
@@ -202,6 +212,7 @@ class PrivateKey(IPrivateKey):
         """
         impl = SigningKey(data)
         return cls(impl)
+
     def get_public_key(self) -> IPublicKey:
         """
         Returns the public key corresponding to this private key.
@@ -210,6 +221,7 @@ class PrivateKey(IPrivateKey):
             raise CryptoBaseException("Invalid private key implementation.")
         # Return a PublicKey wrapping the VerifyKey derived from this SigningKey
         return PublicKey(self._impl.verify_key)
+
     def sign(self, data: bytes) -> Tuple[Message, Signiture]:
         """
         Signs data with the private key and returns the raw signature.
@@ -225,22 +237,26 @@ class PrivateKey(IPrivateKey):
         # Direct signing using the wrapped SigningKey
         signed_message = self._impl.sign(data)
         return signed_message.message, signed_message.signature
+
     def to_bytes(self) -> bytes:
         """
         Converts the private key to its raw byte representation.
         """
         return bytes(self._impl)
+
     def __bytes__(self) -> bytes:
         """
         Allows the PrivateKey object to be converted to bytes using bytes().
         """
         return self.to_bytes()
+
     def __str__(self) -> str:
         """
         Returns a human-readable string representation of the private key.
         """
         # For security, avoid showing private key material in str.
         return "PrivateKey(ED25519)"
+
     def __repr__(self) -> str:
         """
         Returns a detailed string representation for debugging.
@@ -248,14 +264,15 @@ class PrivateKey(IPrivateKey):
         # For security, avoid showing private key material in repr.
         return "<synlink.crypto.ed25519.PrivateKey>"
 
+
 @dataclass(frozen=True, repr=False)
-class KeyPair(object):
+class KeyPair(IKeyPair):
     """
     Represents an ED25519 key pair, containing both a private and public key.
     """
 
     secret: PrivateKey
-    public: PublicKey
+    public: IPublicKey
 
     def try_verify(self, message: bytes, signature: bytes) -> bool:
         """
@@ -273,6 +290,7 @@ class KeyPair(object):
             Exception: base class for all non-exit exceptions.
         """
         return self.public.try_verify(data=message, signature=signature)
+
     def verify(self, message: bytes, signature: bytes) -> bool:
         """
         Verifies the signature against the signed message.
@@ -288,6 +306,7 @@ class KeyPair(object):
             return self.public.verify(data=message, signature=signature)
         except BadSignatureError:
             return False
+
     def sign(self, message: bytes) -> Tuple[Message, Signiture]:
         """
         Signs data with the private key and returns the raw signature.
@@ -299,17 +318,20 @@ class KeyPair(object):
             The raw signature bytes.
         """
         return self.secret.sign(data=message)
+
     def __bytes__(self) -> bytes:
         """
         Returns the raw bytes of the secret (private) key.
         """
         return bytes(self.secret)
+
     def __repr__(self) -> str:
         """
         Returns a detailed string representation for debugging.
         """
         # Include the public key's repr for better context
         return f"<synlink.crypto.ed25519.KeyPair public={self.public!s}>"
+
 
 def create_new_ed25519_key_pair() -> KeyPair:
     """
@@ -320,7 +342,8 @@ def create_new_ed25519_key_pair() -> KeyPair:
     """
     secret = PrivateKey.generate()
     public = secret.get_public_key()
-    return KeyPair(secret, public)
+    return KeyPair(secret=secret, public=public)
+
 
 def create_new_ed25519_key_pair_from_seed(
     seed: Optional[bytes] = None,
@@ -338,4 +361,4 @@ def create_new_ed25519_key_pair_from_seed(
     """
     secret: PrivateKey = PrivateKey.from_seed(seed)
     public = secret.get_public_key()
-    return KeyPair(secret, public)
+    return KeyPair(secret=secret, public=public)

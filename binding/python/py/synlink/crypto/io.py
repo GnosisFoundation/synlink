@@ -1,7 +1,6 @@
 import os
-import pathlib
 
-from typing import Union, Optional
+from typing import Union, Optional, Final
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import (
@@ -10,11 +9,10 @@ from cryptography.hazmat.primitives.asymmetric import (
 
 import synlink.crypto.ed25519 as ed25519
 from synlink.crypto.typing import KeyPair
+from synlink.utils import HOME_DIR
 
-HOME_DIR: str = pathlib.Path.home().__str__()
-SSH_DEFAULT_DIRECTORY = os.path.join(HOME_DIR, ".ssh")
+SSH_DEFAULT_DIRECTORY: Final[str] = os.path.join(HOME_DIR, ".ssh")
 
-__all__ = ["load_open_ssh_private_key"]
 
 def load_ssh_private_key(
     file: Union[str, os.PathLike] = SSH_DEFAULT_DIRECTORY,
@@ -54,4 +52,4 @@ def load_ssh_private_key(
             public = secret.get_public_key()
             return ed25519.KeyPair(secret=secret, public=public)
         else:
-            raise NotImplemented
+            raise NotImplementedError("key type is not implmented.")
