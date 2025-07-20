@@ -3,9 +3,9 @@ use pyo3::prelude::*;
 
 pyo3::create_exception!(
     synlink,
-    SynLinkBaseException,
+    SynlinkBaseException,
     PyException,
-    "Custom Base exception on the SL protocol"
+    "Base exception on the Synapse Network protocol"
 );
 
 /// A Python module implemented in Rust.
@@ -13,8 +13,8 @@ pyo3::create_exception!(
 pub(crate) fn register_exception(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let error_m = PyModule::new(m.py(), "_error")?;
     error_m.add(
-        "SynLinkBaseException",
-        error_m.py().get_type::<SynLinkBaseException>(),
+        "SynlinkBaseException",
+        error_m.py().get_type::<SynlinkBaseException>(),
     )?;
 
     m.add_submodule(&error_m)
