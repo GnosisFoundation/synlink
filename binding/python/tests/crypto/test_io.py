@@ -4,8 +4,7 @@ import tempfile
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
 
-from synlink.crypto.io import load_open_ssh_private_key
-from synlink.crypto.ed25519 import PrivateKey
+from synlink.crypto.io import load_ssh_private_key
 
 
 
@@ -54,7 +53,7 @@ def invalid_file_buffer() -> tempfile._TemporaryFileWrapper:
 def test_io_read_ssh_file(file_buffer : tempfile._TemporaryFileWrapper):
     try:
         _ = file_buffer
-        _keypair = load_open_ssh_private_key(
+        _keypair = load_ssh_private_key(
             _.name,
             password="hello-world"
         )
@@ -68,7 +67,7 @@ def test_io_invalid_read_ssh_file(invalid_file_buffer : tempfile._TemporaryFileW
     _ = invalid_file_buffer
     
     with pytest.raises(Exception): 
-        _keypair = load_open_ssh_private_key(
+        _keypair = load_ssh_private_key(
             _.name,
             password="hello-world"
         )
@@ -80,7 +79,7 @@ def test_io_invalid_key_read_ssh_file(file_buffer : tempfile._TemporaryFileWrapp
     _ = file_buffer
     
     with pytest.raises(Exception): 
-        _keypair = load_open_ssh_private_key(
+        _keypair = load_ssh_private_key(
             _.name,
             password="hello"
         )
