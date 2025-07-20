@@ -37,3 +37,16 @@ def test_valid_synlink_multiaddr_p2p():
 
     assert ALL_VALID(expected), ASSERT_ALL_VALID_MESSAGE
     
+
+def test_valid_synlink_multiaddr_p2p_str():
+    """synlink supports p2p look ups."""
+    
+    ip4_udp = "/ip4/0.0.0.0/udp/0/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N"
+    ip6_udp = "/ip6/::1/udp/0/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N"
+
+    ip4_tcp = "/ip4/0.0.0.0/tcp/0/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N"
+    ip6_tcp = "/ip6/::1/tcp/0/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N"
+
+    expected = [ip4_udp, ip6_udp, ip4_tcp, ip6_tcp]
+
+    assert ALL_VALID(expected), ASSERT_ALL_VALID_MESSAGE
