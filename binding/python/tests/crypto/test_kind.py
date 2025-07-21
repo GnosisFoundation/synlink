@@ -1,6 +1,7 @@
 import pytest
 from synlink.crypto.kind import Kind
 
+
 def test_kind_from_bytes():
     data = b"\x00"
 
@@ -19,9 +20,11 @@ def test_kind_from_unbound_bytes_exception():
     with pytest.raises(ValueError):
         _ = Kind.from_bytes([-1])
 
+
 def test_kind_max_min():
     assert Kind.max() == 0
     assert Kind.min() == 0
+
 
 def test_kind_to_bytes():
     kind = Kind.ED25519
